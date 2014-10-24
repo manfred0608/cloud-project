@@ -24,7 +24,7 @@ public class TwitterETL extends Configured implements Tool {
 		DBConfiguration.configureDB(
 				jobConf,
 				"com.mysql.jdbc.Driver",
-				"jdbc:mysql://54.172.235.196:3306/twitter?characterEncoding=utf8",
+				"jdbc:mysql://172.31.3.45:3306/twitter?characterEncoding=utf8",
 				"twitter",
 				"Qaq4yGmSpfRrFXaw");
 		

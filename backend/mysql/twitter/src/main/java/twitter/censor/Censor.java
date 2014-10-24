@@ -29,7 +29,7 @@ public class Censor {
 		int score = 0;
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
-			if (SentimentScoreMap.PHRASEMAP.containsKey(word)) {
+			if (SentimentScoreMap.PHRASEMAP.containsKey(word.toLowerCase(Locale.ENGLISH))) {
 				PhraseScore ps = SentimentScoreMap.PHRASEMAP.get(word);
 				StringBuilder phrase = new StringBuilder();
 				
@@ -39,9 +39,9 @@ public class Censor {
 						phrase.append(words[j]);
 					}
 					
-					System.out.println("phrase:" + phrase.toString());
+//					System.out.println("phrase:" + phrase.toString());
 					for (int j = 0; j < ps.CONCATENATEDPHRASE.length; j++) {
-						System.out.println("Comparing " + phrase + " with " + ps.CONCATENATEDPHRASE[i]);
+//						System.out.println("Comparing " + phrase + " with " + ps.CONCATENATEDPHRASE[i]);
 						if (phrase.toString().equalsIgnoreCase(ps.CONCATENATEDPHRASE[j])) {
 							score += ps.SCORE;
 							i++;

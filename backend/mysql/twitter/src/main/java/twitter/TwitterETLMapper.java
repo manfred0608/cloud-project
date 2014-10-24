@@ -54,7 +54,7 @@ public class TwitterETLMapper extends Mapper<LongWritable, Text, TweetWritable, 
 			
 			String tweetText = rootNode.get("text").getAsString();
 			
-			String[] textWords = tweetText.split(" ");
+			String[] textWords = tweetText.split("[^a-zA-Z']");
 			
 			int sentiment_score = Censor.getSentimentScore(textWords);
 			
