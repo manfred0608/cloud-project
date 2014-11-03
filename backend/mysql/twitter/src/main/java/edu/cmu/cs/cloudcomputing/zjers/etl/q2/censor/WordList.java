@@ -1,4 +1,4 @@
-package twitter.censor;
+package edu.cmu.cs.cloudcomputing.zjers.etl.q2.censor;
 
 import java.util.Arrays;
 import java.util.HashSet;

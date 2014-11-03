@@ -1,13 +1,18 @@
-package twitter.censor;
+package edu.cmu.cs.cloudcomputing.zjers.etl.q2.censor;
 
+import edu.cmu.cs.cloudcomputing.zjers.etl.q2.censor.Censor;
 import junit.framework.TestCase;
 
 public class SentimentScoreTest extends TestCase {
 
 	public void testGetSentimentScore() {
 		
+		String tweetText = "What the fuck";
+		
+		assertEquals(-4,  Censor.getSentimentScore(tweetText));
+		
 		String[] testWords1 = {
-				"can't",
+				"Can't",
 				"stand"
 		};
 		assertEquals(-3, Censor.getSentimentScore(testWords1));
@@ -29,8 +34,13 @@ public class SentimentScoreTest extends TestCase {
 				"green"
 		};
 		assertEquals(-3, Censor.getSentimentScore(testWords4));
-		
-		
+	}
+	
+	public void testCensor() {
+		String testString1 = "What  the fuck";
+		String censored = Censor.censor(testString1);
+		System.out.println(censored);
+		assertTrue(censored.equals("What  the f**k"));
 	}
 
 }

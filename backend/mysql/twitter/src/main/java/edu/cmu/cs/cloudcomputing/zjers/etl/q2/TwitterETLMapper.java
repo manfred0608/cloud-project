@@ -1,4 +1,4 @@
-package twitter;
+package edu.cmu.cs.cloudcomputing.zjers.etl.q2;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -17,8 +17,8 @@ import com.google.gson.JsonParser;
 
 import edu.cmu.cs.cloudcomputing.zjers.etl.q2.censor.Censor;
 
-public class TwitterETLMapper extends Mapper<LongWritable, Text, TweetWritable, NullWritable> {
-
+public class TwitterETLMapper extends Mapper<LongWritable, Text, Text, NullWritable> {
+	
 	@Override
 	protected void map(
 			LongWritable key,
@@ -53,26 +53,18 @@ public class TwitterETLMapper extends Mapper<LongWritable, Text, TweetWritable, 
 			long user_id = userNode.get("id").getAsLong();
 			
 			String tweetText = rootNode.get("text").getAsString();
+						
+			int sentiment_score = Censor.getSentimentScore(tweetText);
 			
-			String[] textWords = tweetText.split("[^a-zA-Z']+", -1);
+			String text_censored = Censor.censor(tweetText);
 			
-			int sentiment_score = Censor.getSentimentScore(textWords);
-			
-			System.out.println("Before censoring: " + tweetText);
-			String text_censored = Censor.censor(textWords);
-			System.out.println("After censoring:" + text_censored);
-			
-			context.write(
-					new TweetWritable(
-							id,
-							user_id,
-							created_at,
-							text_censored,
-							sentiment_score),
-					NullWritable.get());
+			context.write(new Text(
+					"\"" + id + "\",\""
+					+ user_id + "\",\""
+					+ created_at + "\",\""
+					+ text_censored + "\",\""
+					+ sentiment_score + "\"")
+					, NullWritable.get());
 		}
-		
 	}
-
-	
 }
