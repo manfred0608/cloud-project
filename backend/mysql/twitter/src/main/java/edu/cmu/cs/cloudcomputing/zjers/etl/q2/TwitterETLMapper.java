@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -58,21 +59,22 @@ public class TwitterETLMapper extends Mapper<LongWritable, Text, Text, NullWrita
 			
 			String text_censored = Censor.censor(tweetText);
 			
-//			context.write(new Text(
-//					"\"" + id + "\",\""
-//					+ user_id + "\",\""
-//					+ created_at + "\",\""
-//					+ text_censored + "\",\""
-//					+ sentiment_score + "\"")
-//					, NullWritable.get());
-			
-			SimpleDateFormat outputsdf = new SimpleDateFormat("YYYY-MM-dd+HH:mm:ss");
-			
 			context.write(new Text(
-					user_id + "\t"
-					+ outputsdf.format(created_at) + "\t"
-					+ id + ":" + sentiment_score + ":" + Censor.newLineToSemicolon(text_censored)
-					), NullWritable.get());
+					"\"" + id + "\",\""
+					+ user_id + "\",\""
+					+ created_at + "\",\""
+					+ text_censored + "\",\""
+					+ sentiment_score + "\"")
+					, NullWritable.get());
+			
+//			SimpleDateFormat outputsdf = new SimpleDateFormat("YYYY-MM-dd+HH:mm:ss");
+//			outputsdf.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
+//			
+//			context.write(new Text(
+//					user_id + "\t"
+//					+ outputsdf.format(created_at) + "\t"
+//					+ id + ":" + sentiment_score + ":" + Censor.newLineToSemicolon(text_censored)
+//					), NullWritable.get());
 		}
 	}
 }

@@ -5,40 +5,6 @@ import java.util.HashMap;
 import org.apache.hadoop.util.StringUtils;
 
 public class SentimentScoreMap {
-	
-	public class PhraseScore {
-		public  String[] CONCATENATEDPHRASE;
-		public  int LENGTH;
-		public  int SCORE;
-		public PhraseScore(int length, int score, String... phrase) {
-			this.CONCATENATEDPHRASE = phrase;
-			this.LENGTH = length;
-			this.SCORE = score;
-		}
-		
-		public  String printString() {
-			return StringUtils.join(",", CONCATENATEDPHRASE) + " " + LENGTH + " " + SCORE;
-		}
-	}
-	
-	public static final HashMap<String, PhraseScore> PHRASEMAP;
-	static {
-		SentimentScoreMap ssm = new SentimentScoreMap();
-		PHRASEMAP = new HashMap<String, PhraseScore>();
-		PHRASEMAP.put("can't", ssm.new PhraseScore(2, -3, "can'tstand"));
-		PHRASEMAP.put("cashing", ssm.new PhraseScore(2, -2, "cashingin"));
-		PHRASEMAP.put("cool", ssm.new PhraseScore(2, 3, "coolstuff"));
-		PHRASEMAP.put("does", ssm.new PhraseScore(3, -3, "doesnotwork"));
-		PHRASEMAP.put("dont", ssm.new PhraseScore(2, -2, "dontlike"));
-		PHRASEMAP.put("fed", ssm.new PhraseScore(2, -3, "fedup"));
-		PHRASEMAP.put("green", ssm.new PhraseScore(2, -3, "greenwash", "greenwashing"));
-		PHRASEMAP.put("messing", ssm.new PhraseScore(2, -2, "messingup"));
-		PHRASEMAP.put("no", ssm.new PhraseScore(2, -3, "nofun"));
-		PHRASEMAP.put("not", ssm.new PhraseScore(2, -2, "notgood", "notworking"));
-		PHRASEMAP.put("right", ssm.new PhraseScore(2, 3, "rightdirection"));
-		PHRASEMAP.put("screwed", ssm.new PhraseScore(2, -3, "screwedup"));
-		PHRASEMAP.put("some", ssm.new PhraseScore(2, 0, "somekind"));
-	}
 
 	public static final HashMap<String, Integer> SCOREMAP;
 	static {

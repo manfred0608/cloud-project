@@ -1,13 +1,9 @@
 package edu.cmu.cs.cloudcomputing.zjers.etl.q2.censor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 import org.apache.hadoop.util.StringUtils;
-
-import edu.cmu.cs.cloudcomputing.zjers.etl.q2.censor.SentimentScoreMap.PhraseScore;
 
 public class Censor {
 	
@@ -54,6 +50,8 @@ public class Censor {
 		return result;
 	}
 	
+	private static final String VALID_CHARS="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	
 	public static String censor(String text) {
 
 		int start = 0, end = 0;
@@ -74,7 +72,7 @@ public class Censor {
 				start = i + 1;
 				
 				// CSV quotation mark escape
-//				if (text.charAt(i) == '"') sb.append('\\');
+				if (text.charAt(i) == '"') sb.append('\\');
 				sb.append(text.charAt(i));
 			}
 		}
@@ -90,57 +88,15 @@ public class Censor {
 		return sb.toString();
 	}
 	
-	private static final String VALID_CHARS =
-			"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	public static int getSentimentScore(String text) {
-		List<String> list = new ArrayList<String>();
-		int start = 0, end = 0;
-		for (int i = 0; i < text.length(); i++) {
-			if (VALID_CHARS.indexOf(text.charAt(i)) != -1) {
-				end++;
-			} else {
-				if (start != end) list.add(text.substring(start, end));
-				end = i + 1;
-				start = i + 1;
-			}
-		}
-		if (start != end) list.add(text.substring(start, end));
-		
-		return getSentimentScore(list.toArray(new String[list.size()]));
-	}
 	
-	public static int getSentimentScore(String[] words) {
+	public static int getSentimentScore(String text) {
+		String[] tweetToken = text.split("[^A-Za-z0-9]+");
+		
 		int score = 0;
-		for (int i = 0; i < words.length; i++) {
-			String word = words[i].toLowerCase(Locale.ENGLISH);
-//			System.out.println("words[" + i + "]: " + word);
-			if (word.isEmpty()) continue;
-//			System.out.println("Word: " + word);
-			if (SentimentScoreMap.PHRASEMAP.containsKey(word)) {
-				PhraseScore ps = SentimentScoreMap.PHRASEMAP.get(word);
-				StringBuilder phrase = new StringBuilder();
-				
-				if (i + ps.LENGTH <= words.length) {
-				
-					for (int j = i; j < i + ps.LENGTH; j++) {
-						phrase.append(words[j]);
-					}
-					
-//					System.out.println("phrase:" + phrase.toString());
-					for (int j = 0; j < ps.CONCATENATEDPHRASE.length; j++) {
-//						System.out.println("Comparing " + phrase + " with " + ps.CONCATENATEDPHRASE[i]);
-						if (phrase.toString().equalsIgnoreCase(ps.CONCATENATEDPHRASE[j])) {
-							score += ps.SCORE;
-							i++;
-							word = words[i];
-							break;
-						}
-					}
-				}
-			}
-			
-			if (SentimentScoreMap.SCOREMAP.containsKey(word)) {
-				score += SentimentScoreMap.SCOREMAP.get(word);
+		
+		for (String token : tweetToken) {
+			if (SentimentScoreMap.SCOREMAP.containsKey(token.toLowerCase(Locale.ENGLISH))) {
+				score += SentimentScoreMap.SCOREMAP.get(token.toLowerCase(Locale.ENGLISH));
 			}
 		}
 		
