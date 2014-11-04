@@ -58,13 +58,21 @@ public class TwitterETLMapper extends Mapper<LongWritable, Text, Text, NullWrita
 			
 			String text_censored = Censor.censor(tweetText);
 			
+//			context.write(new Text(
+//					"\"" + id + "\",\""
+//					+ user_id + "\",\""
+//					+ created_at + "\",\""
+//					+ text_censored + "\",\""
+//					+ sentiment_score + "\"")
+//					, NullWritable.get());
+			
+			SimpleDateFormat outputsdf = new SimpleDateFormat("YYYY-MM-dd+HH:mm:ss");
+			
 			context.write(new Text(
-					"\"" + id + "\",\""
-					+ user_id + "\",\""
-					+ created_at + "\",\""
-					+ text_censored + "\",\""
-					+ sentiment_score + "\"")
-					, NullWritable.get());
+					user_id + "\t"
+					+ outputsdf.format(created_at) + "\t"
+					+ id + ":" + sentiment_score + ":" + Censor.newLineToSemicolon(text_censored)
+					), NullWritable.get());
 		}
 	}
 }

@@ -23,7 +23,7 @@ public class TwitterETL extends Configured implements Tool {
 		
 		Configuration jobConf = new Configuration();
 		jobConf.setLong("mapreduce.task.timeout", 0);
-		jobConf.set("mapred.child.java.opts", "-Xmx2048m");
+//		jobConf.set("mapred.child.java.opts", "-Xmx256m");
 		
 		Job job = Job.getInstance(jobConf);
 		

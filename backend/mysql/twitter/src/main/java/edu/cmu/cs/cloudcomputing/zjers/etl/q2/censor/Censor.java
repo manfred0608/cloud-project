@@ -73,7 +73,8 @@ public class Censor {
 				end = i + 1;
 				start = i + 1;
 				
-				if (text.charAt(i) == '"') sb.append('\\');
+				// CSV quotation mark escape
+//				if (text.charAt(i) == '"') sb.append('\\');
 				sb.append(text.charAt(i));
 			}
 		}
@@ -89,7 +90,8 @@ public class Censor {
 		return sb.toString();
 	}
 	
-	private static final String VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'";
+	private static final String VALID_CHARS =
+			"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	public static int getSentimentScore(String text) {
 		List<String> list = new ArrayList<String>();
 		int start = 0, end = 0;
@@ -143,5 +145,21 @@ public class Censor {
 		}
 		
 		return score;
+	}
+	
+	public static String newLineToSemicolon(String str) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < str.length(); i++) {
+			if (str.charAt(i) == '\n') {
+				sb.append(";");
+			} else {
+				sb.append(str.charAt(i));
+			}
+		}
+		
+		sb.append(";");
+		
+		return sb.toString();
 	}
 }
