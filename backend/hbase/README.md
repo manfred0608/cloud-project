@@ -9,7 +9,7 @@ src : ETL for phase 1
     twitter : 
         censor : package used to do "censor" and "calculate sentiment score" jobs;
 
-Phase2Q3 : ETL for Q3 of phase 2
+Phase2 : ETL for Q2 and Q3 of phase 2
     ETL.java : main class for all the ETL jobs
     Extract.java : parse JSON and get useful data
     ETLMapper.java : mapper class.
