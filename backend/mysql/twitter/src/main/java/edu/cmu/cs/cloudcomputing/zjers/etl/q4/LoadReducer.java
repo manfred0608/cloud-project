@@ -51,31 +51,24 @@ public class LoadReducer extends
 				return o2.getValue().size() - o1.getValue().size();
 			}
 		});
-
+		
 		for (int i = 0; i < list.size(); i++) {
 			Map.Entry<String, List<Long>> entry = list.get(i);
-
 			
-			String serial = serialize(entry.getKey(), entry.getValue());
-
 			String time = key.toString().split(";")[0];
 			String location = key.toString().split(";")[1];
+			String hashtag = entry.getKey();
+			List<Long> tweetIdList = entry.getValue();
 			
-			String res = time + "\t" + location + "\t" + serial + "\t" + (i + 1) + "\n";
-			context.write(new Text(res), NullWritable.get());
-		}
-	}
+			for (Long id : tweetIdList) {
 
-	private String serialize(String key, List<Long> list) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(key + ":");
-		for (int i = 0; i < list.size(); i++) {
-			if (i == 0)
-				sb.append(list.get(i));
-			else
-				sb.append("," + list.get(i));
+				String res = "\"" + time + "\",\""
+						+ location + "\",\""
+						+ hashtag + "\",\""
+						+ id + "\",\""
+						+ (i + 1) + "\"";
+				context.write(new Text(res), NullWritable.get());
+			}
 		}
-
-		return sb.toString();
 	}
 }
