@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.amazonaws.util.json.JSONArray;
@@ -28,7 +29,7 @@ public class Extract {
 				JSONObject userObj = obj.getJSONObject("user");
 				location = userObj.getString("time_zone");
 				
-				if(location != "null" && !location.toLowerCase().matches("\btime\b")){					
+				if(location != "null" && !location.matches("\btime\b")){					
 					JSONObject entities = obj.getJSONObject("entities");
 					JSONArray tags = entities.getJSONArray("hashtags");
 					
@@ -50,7 +51,9 @@ public class Extract {
 						for(int i = 0; i < tags.length(); i++){
 							JSONObject tag = tags.getJSONObject(i);
 							String text = tag.getString("text");
-							set.add(text);
+							
+							int index = (int)tag.getJSONArray("indices").getInt(0);
+							set.add(text + "." + index);
 						}
 						reVal = new Extract(id, date, location, set.toArray(new String[set.size()]));
 						return reVal;
