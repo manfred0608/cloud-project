@@ -100,6 +100,7 @@ public class LoadReducer extends
 					int diff2 = o1.getValue().get(i).compareTo(o2.getValue().get(i));
 					if(diff2 != 0)
 						return diff2;
+					i++;
 				}
 				return 0;
 			}

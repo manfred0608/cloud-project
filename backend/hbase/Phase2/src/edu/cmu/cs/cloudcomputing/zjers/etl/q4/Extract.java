@@ -20,44 +20,47 @@ public class Extract {
 	public static Extract create(String jsonData){
 		Extract reVal = null;
 		try{
-			System.out.println(jsonData);
+//			System.out.println(jsonData);
 			JSONObject obj = new JSONObject(jsonData);
 			
-			String location = obj.getString("place");
+			String place = obj.getString("place");
+			String location = null;
 			
-			if(location == "null"){
+			if (!place.equals("null") && !obj.getJSONObject("place").getString("name").equals("null")) {
+				location = obj.getJSONObject("place").getString("name");				
+			} else {
 				JSONObject userObj = obj.getJSONObject("user");
 				location = userObj.getString("time_zone");
+			}
+			
+			if(location != "null" && !location.toLowerCase().matches("\btime\b")){
+				JSONObject entities = obj.getJSONObject("entities");
+				JSONArray tags = entities.getJSONArray("hashtags");
 				
-				if(location != "null" && !location.matches("\btime\b")){					
-					JSONObject entities = obj.getJSONObject("entities");
-					JSONArray tags = entities.getJSONArray("hashtags");
+				if(tags.length() != 0){
+					String date = obj.getString("created_at");
 					
-					if(tags.length() != 0){
-						String date = obj.getString("created_at");
+					SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+					SimpleDateFormat sdf2 = new SimpleDateFormat(
+							"E MMM dd HH:mm:ss ZZZZ yyyy");
+					
+					Date temp = sdf2.parse(date);
+					date = sdf1.format(temp);
+					
+					String id_str = obj.getString("id_str");
+					long id = Long.valueOf(id_str);
+					
+					Set<String> set = new HashSet<String>();
+					
+					for(int i = 0; i < tags.length(); i++){
+						JSONObject tag = tags.getJSONObject(i);
+						String text = tag.getString("text");
 						
-						SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-						SimpleDateFormat sdf2 = new SimpleDateFormat(
-								"E MMM dd HH:mm:ss ZZZZ yyyy");
-						
-						Date temp = sdf2.parse(date);
-						date = sdf1.format(temp);
-						
-						String id_str = obj.getString("id_str");
-						long id = Long.valueOf(id_str);
-						
-						Set<String> set = new HashSet<String>();
-						
-						for(int i = 0; i < tags.length(); i++){
-							JSONObject tag = tags.getJSONObject(i);
-							String text = tag.getString("text");
-							
-							int index = (int)tag.getJSONArray("indices").getInt(0);
-							set.add(text + "." + index);
-						}
-						reVal = new Extract(id, date, location, set.toArray(new String[set.size()]));
-						return reVal;
+						int index = (int)tag.getJSONArray("indices").getInt(0);
+						set.add(text + "." + index);
 					}
+					reVal = new Extract(id, date, location, set.toArray(new String[set.size()]));
+					return reVal;
 				}
 			}
 		}catch(JSONException e){
