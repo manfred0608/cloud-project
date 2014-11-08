@@ -1,4 +1,4 @@
-package dbserver;
+package retweetserver;
 
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -10,51 +10,48 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Deque;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import com.schooner.MemCached.MemcachedItem;
 import com.whalin.MemCached.MemCachedClient;
 import com.whalin.MemCached.SockIOPool;
 
-public class QueryServer {
+import dbserver.ConnectionPooler;
 
-    private static final String ID1 = "6723-4767-7958";
+public class RetweetServer {
+	private static final String ID1 = "6723-4767-7958";
     private static final String ID2 = "9942-1880-5592";
     private static final String ID3 = "5052-3472-7830";
     private static final String TEAMID = "ZJers";
     private static final String HEADER_STR =
     		TEAMID + "," + ID1 + "," + ID2 + "," + ID3 + "\n";
     
-    static {
-    	String[] memcachedServer = { "localhost:11111" };
-    	SockIOPool pool = SockIOPool.getInstance();
-    	pool.setServers(memcachedServer);
-    	pool.initialize();
-    }
+//    static {
+//    	String[] memcachedServer = { "localhost:11111" };
+//    	SockIOPool pool = SockIOPool.getInstance();
+//    	pool.setServers(memcachedServer);
+//    	pool.initialize();
+//    }
     
     private static class DBHandler implements HttpHandler {
 
 		@Override
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
-//        	if (exchange.getRequestPath().equalsIgnoreCase("/q2")) {
+//        	if (exchange.getRequestPath().equalsIgnoreCase("/q3")) {
         	try {
             	Map<String, Deque<String>> queryParams = exchange.getQueryParameters();
             	
-            	if (queryParams.get("userid") == null
-            		|| queryParams.get("tweet_time") == null) return; 
+            	if (queryParams.get("userid") == null) return; 
             	
             	String userId = queryParams.get("userid").peekFirst();
-            	String timeCreated = queryParams.get("tweet_time").peekFirst();
             	
-            	String sql = "SELECT `id`, `text_censored`, `sentiment_score` FROM "
-            			+ "`tweets` WHERE user_id=" + userId
-                        + " AND created_at='" + timeCreated
-                        + "' ORDER BY `id` ASC;";
+            	String sql = "SELECT `response` FROM "
+            			+ "`retweets_copy` WHERE id=" + userId
+                        + ";";
             	
 //            	System.out.println(sql);
             	
-            	MemCachedClient mcc = new MemCachedClient();
-            	Object cachedResults = mcc.get(sql);
+//            	MemCachedClient mcc = new MemCachedClient();
+//            	Object cachedResults = mcc.get(sql);
+            	Object cachedResults = null;
             	
             	if (cachedResults == null) {
             	
@@ -69,15 +66,16 @@ public class QueryServer {
 	                
 	                if (rs == null) throw new RuntimeException("RS NULL");
 	                
-	            	while (rs.next()) {
+	                rs.last();
+	                
+	                do {
 	            		responseSB
-	            			.append(rs.getString("id")).append(":")
-	            			.append(rs.getString("sentiment_score")).append(":")
-	            			.append(rs.getString("text_censored")).append("\n");
-	            	}
+	            			.append(rs.getString("response"))
+	            			.append('\n');
+					} while (rs.previous());
 	            	
 	            	exchange.getResponseSender().send(responseSB.toString());
-	            	mcc.set(sql, responseSB.toString());
+//	            	mcc.set(sql, responseSB.toString());
 	            	
 	            	rs.close();
 	            	statement.close();

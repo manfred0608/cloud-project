@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.Map;
 
+import org.omg.CORBA.PRIVATE_MEMBER;
+
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -23,6 +25,33 @@ public class QueryServer {
     	denom =  new BigInteger(PUBLIC_KEY);
     }
     
+    public static class AuthHandler implements HttpHandler {
+    	@Override
+        public void handleRequest(final HttpServerExchange exchange) throws Exception {
+        	
+//        	if (exchange.getRequestPath().equalsIgnoreCase("/q1")) {
+            	Map<String, Deque<String>> queryParams = exchange.getQueryParameters();
+            	
+            	BigInteger nominator = new BigInteger(queryParams.get("key").getFirst());
+            	String quotient = nominator.divide(denom).toString();
+            	 
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                
+                StringBuffer sb = new StringBuffer();
+                sb.append(quotient).append("\n")
+                	.append(TEAMID).append(",")
+                	.append(ID1).append(",")
+                	.append(ID2).append(",")
+                	.append(ID3).append("\n")
+                	.append(sdf.format(new Date())).append("\n");
+                	
+                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+               
+                exchange.getResponseSender().send(sb.toString());
+//        	}
+        }
+    }
+    
 	public static void main(String[] args) {
 		
 		if (args.length < 2) {
@@ -32,32 +61,7 @@ public class QueryServer {
 		
         Undertow server = Undertow.builder()
                 .addHttpListener(Integer.parseInt(args[0]), args[1])
-                .setHandler(new HttpHandler() {
-                    @Override
-                    public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                    	
-//                    	if (exchange.getRequestPath().equalsIgnoreCase("/q1")) {
-	                    	Map<String, Deque<String>> queryParams = exchange.getQueryParameters();
-	                    	
-	                    	BigInteger nominator = new BigInteger(queryParams.get("key").getFirst());
-	                    	String quotient = nominator.divide(denom).toString();
-	                    	 
-	                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	                        
-	                        StringBuffer sb = new StringBuffer();
-	                        sb.append(quotient).append("\n")
-	                        	.append(TEAMID).append(",")
-	                        	.append(ID1).append(",")
-	                        	.append(ID2).append(",")
-	                        	.append(ID3).append("\n")
-	                        	.append(sdf.format(new Date())).append("\n");
-	                        	
-	                        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-	                       
-	                        exchange.getResponseSender().send(sb.toString());
-//                    	}
-                    }
-                })
+                .setHandler(new AuthHandler())
                 .build();
         
         server.start();
