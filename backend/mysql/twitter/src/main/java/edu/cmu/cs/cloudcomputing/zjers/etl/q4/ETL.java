@@ -18,9 +18,43 @@ import org.apache.hadoop.io.Text;
 
 public class ETL extends Configured implements Tool {
 	
+	@Override
+	public int run(String[] args) throws Exception {
+		Configuration jobConf = new Configuration();  
+		 
+		Job job = Job.getInstance(jobConf)	;
+		job.setJarByClass(ETL.class); 
 
+		job.setMapperClass(LoadMapper.class); 
+		job.setMapOutputKeyClass(Text.class);  
+		job.setMapOutputValueClass(Text.class);
+		
+		job.setReducerClass(LoadReducer.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(NullWritable.class);
+		
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+		  		
+		FileSystem fs = FileSystem.get(jobConf);
+
+		Path inPath = new Path(URI.create(args[0]));
+		Path outPath = new Path(URI.create(args[1]));
+
+		@SuppressWarnings("unused")
+		FileSystem inFS = FileSystem.get(inPath.toUri(), jobConf);
+		FileSystem outFS = FileSystem.get(outPath.toUri(), jobConf);
+		
+		if (outFS.exists(outPath)) fs.delete(outPath, true);
+		
+        FileInputFormat.addInputPath(job, inPath);
+        FileOutputFormat.setOutputPath(job, outPath);
+		
+		return job.waitForCompletion(true) ? 0 : 1;
+	}
 	
 	public static void main(String args[]) throws Exception{
+
 
 		if (args.length < 2) {
 			System.out.println("Error: Insufficient arguments.");
@@ -31,40 +65,5 @@ public class ETL extends Configured implements Tool {
 		int res = ToolRunner.run(new Configuration(), new ETL(), args);
         
         System.exit(res);
-	}
-	
-	public int run(String[] args) throws Exception {
-		Configuration jobConf = new Configuration();
-
-		Job job = Job.getInstance(jobConf);
-
-		job.setJarByClass(ETL.class);
-
-		job.setMapperClass(LoadMapper.class);
-		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(Text.class);
-
-		job.setReducerClass(LoadReducer.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(NullWritable.class);
-
-		job.setInputFormatClass(TextInputFormat.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
-  		
-		FileSystem fs = FileSystem.get(jobConf);
-		
-		Path inPath = new Path(URI.create(args[0]));
-		Path outPath = new Path(URI.create(args[1]));
-		
-		@SuppressWarnings("unused")
-		FileSystem inFS = FileSystem.get(inPath.toUri(), jobConf);
-		FileSystem outFS = FileSystem.get(outPath.toUri(), jobConf);
-		
-		if (outFS.exists(outPath)) fs.delete(outPath, true);
-		
-		FileInputFormat.addInputPath(job, inPath);
-		FileOutputFormat.setOutputPath(job, outPath);
-		
-		return job.waitForCompletion(true) ? 0 : 1;
 	}
 }
