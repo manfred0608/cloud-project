@@ -29,10 +29,10 @@ import com.mysql.jdbc.Statement;
 @WebServlet("/Q2")
 public class Q2 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private Connection conn = null;
 	private Statement stmt = null;
-	
+
 	private static String ID1;
 	private static String ID2;
 	private static String ID3;
@@ -70,6 +70,12 @@ public class Q2 extends HttpServlet {
 		ip = config.getInitParameter("IP");
 		ip2 = config.getInitParameter("IP2");
 		tablename = config.getInitParameter("TABLENAME");
+		try {
+			Query.createConnection();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -84,15 +90,14 @@ public class Q2 extends HttpServlet {
 		String ftt = null;
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		SimpleDateFormat sdf2 = new SimpleDateFormat(
-				"E MMM dd HH:mm:ss +0000 yyyy");
-		
+				"yyyy-MM-dd+HH:mm:ss");
+
 		Date date = null;
 		try {
 			date = sdf1.parse(tt);
 			ftt = sdf2.format(date);
-			//System.out.println(ftt);
-			return Query.query(userid, ftt);
-		} catch (ParseException | IOException e) {
+			return Query.q2Query(userid, ftt);
+		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -112,31 +117,40 @@ public class Q2 extends HttpServlet {
 
 		String userid = request.getParameter("userid");
 		String tt = request.getParameter("tweet_time");
-		
-		Query.begin(ip2);
+
+		Query.getConn();
 		List<String[]> results = null;
 		StringBuffer sb = new StringBuffer();
 		try {
 			results = getEMRRes(userid, tt);
 			if (results == null)
 				return;
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
+			
 			String title = TEAMID + "," + ID1 + "," + ID2 + "," + ID3 + "\n";
 			sb.append(title);
 
 			for (String[] s : results) {
 				sb.append(s[0] + ":" + s[2] + ":" + s[1] + "\n");
 			}
-			
+
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType("text/html");
 			PrintWriter out = response.getWriter();
 			out.print(sb.toString());
-			Query.close();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void destroy() {
+		super.destroy();
+		try {
+			Query.closeConnection();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
