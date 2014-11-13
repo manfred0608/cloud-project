@@ -8,11 +8,13 @@ public class SentimentScoreTest extends TestCase {
 	public void testGetSentimentScore() {
 		
 		String tweetText = "What the fuck";
-		
 		assertEquals(-4,  Censor.getSentimentScore(tweetText));
 		
 		String tweetText1 = "@BenevolentLiar I won't stop you from going to her... As long as it's just all for fun.";
 		assertEquals(6, Censor.getSentimentScore(tweetText1));
+		
+		String tweetText2 = "@djarsonist The odd thing is he's ponied up transfer fees for some marginal players. Probably won't happen, but we can dream ...";
+		assertEquals(2, Censor.getSentimentScore(tweetText2));
 		
 //		String[] testWords1 = {
 //				"Can't",
