@@ -1,7 +1,10 @@
 package edu.cmu.cs.cloudcomputing.zjers.frontend.undertow;
 
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.handler.AuthHandler;
+import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.handler.HashtagHandler;
+import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.handler.HotHandler;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.handler.RetweetHandler;
+import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.handler.ShutterHandler;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.handler.TweetHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -25,8 +28,6 @@ public final class QueryServer {
 	}
 	
 	public QueryServer(final String[] args) throws Exception {
-
-		ConnectionPooler.InitializePooler();
 		
 		Undertow.builder()
 			.addHttpListener(Integer.parseInt(args[0]), args[1])
@@ -36,7 +37,10 @@ public final class QueryServer {
 			.setHandler(Handlers.header(Handlers.path()
 					.addPrefixPath("/q1", new AuthHandler())
 					.addPrefixPath("/q2", new TweetHandler())
-					.addPrefixPath("/q3", new RetweetHandler()),
+					.addPrefixPath("/q3", new RetweetHandler())
+					.addPrefixPath("/q4", new HashtagHandler())
+					.addPrefixPath("/q5", new HotHandler())
+					.addPrefixPath("/q6", new ShutterHandler()),
 					Headers.SERVER_STRING, "ZJers"))
 			.setWorkerThreads(200)
 			.build()

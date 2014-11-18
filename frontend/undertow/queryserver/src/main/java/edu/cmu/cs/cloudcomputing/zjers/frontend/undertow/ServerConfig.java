@@ -20,9 +20,9 @@ public class ServerConfig {
     
     // MySQL connection pool configuration
     
-	public static final String JDBC_URL = "jdbc:mysql://54.165.35.166:3306/twitter";
+//	public static final String JDBC_URL = "jdbc:mysql://54.173.136.205:3306/twitter";
 
-//	public static final String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/twitter";
+	public static final String JDBC_URL = "jdbc:mysql://127.0.0.1:3306/twitter";
 	public static final String JDBC_LOGIN = "twitter";
 	public static final String JDBC_PASSWORD = "Qaq4yGmSpfRrFXaw";
 	public static final String JDBC_INIT_SQL = "USE `twitter`;";
