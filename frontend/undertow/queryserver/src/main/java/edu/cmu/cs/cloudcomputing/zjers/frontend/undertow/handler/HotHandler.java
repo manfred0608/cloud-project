@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.Deque;
 import java.util.Map;
 
+import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ConnectionPool;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ConnectionPooler;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ServerConfig;
 import io.undertow.server.HttpHandler;
@@ -14,7 +15,7 @@ import io.undertow.util.Headers;
 
 public class HotHandler implements HttpHandler {
 	private static final String SELECT_SQL =
-			"SELECT `user_id`, `score1`, `score2`, `score3` FROM `q5`" +
+			"SELECT * FROM `q5`" +
 			"WHERE `user_id`=?" +
 			"OR `user_id`=?";
 	
@@ -29,6 +30,7 @@ public class HotHandler implements HttpHandler {
     	String n = queryParams.get("n").peekFirst();  
     	    	
     	Connection conn = ConnectionPooler.getDS().getConnection();
+//    	Connection conn = ConnectionPool.GetConnection();
     	
     	PreparedStatement ps = conn.prepareStatement(SELECT_SQL);
     	
@@ -47,19 +49,23 @@ public class HotHandler implements HttpHandler {
         int mScore1 = 0;
         int mScore2 = 0;
         int mScore3 = 0;
+        int mTotalScore = 0;
         int nScore1 = 0;
         int nScore2 = 0;
         int nScore3 = 0;
+        int nTotalScore = 0;
                 
         while (rs.next()) {
         	if (rs.getString("user_id").equals(m)) {
         		mScore1 = rs.getInt("score1");
                 mScore2 = rs.getInt("score2");
                 mScore3 = rs.getInt("score3");
+                mTotalScore = rs.getInt("total_score");
         	} else {
                 nScore1 = rs.getInt("score1");
                 nScore2 = rs.getInt("score2");
                 nScore3 = rs.getInt("score3");
+                nTotalScore = rs.getInt("total_score");
         	}
         }
 
@@ -67,9 +73,9 @@ public class HotHandler implements HttpHandler {
         responseSB.append(mScore1).append('\t').append(nScore1).append('\t').append(judge(mScore1, nScore1, m, n)).append('\n');
         responseSB.append(mScore2).append('\t').append(nScore2).append('\t').append(judge(mScore2, nScore2, m, n)).append('\n');
         responseSB.append(mScore3).append('\t').append(nScore3).append('\t').append(judge(mScore3, nScore3, m, n)).append('\n');
-        responseSB.append(mScore1 + mScore2 + mScore3).append('\t')
-        		  .append(nScore1 + nScore2 + nScore3).append('\t')
-        		  .append(judge(mScore1 + mScore2 + mScore3, nScore1 + nScore2 + nScore3, m, n)).append('\n');
+        responseSB.append(mTotalScore).append('\t')
+        		  .append(nTotalScore).append('\t')
+        		  .append(judge(mTotalScore, nTotalScore, m, n)).append('\n');
         
     	rs.close();
     	ps.close();

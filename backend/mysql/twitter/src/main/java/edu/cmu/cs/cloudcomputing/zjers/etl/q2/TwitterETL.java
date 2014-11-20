@@ -64,7 +64,7 @@ public class TwitterETL extends Configured implements Tool {
 		}
 		
 		int res = ToolRunner.run(new Configuration(), new TwitterETL(), args);
-        
-        System.exit(res);
+
+		System.exit(res);
 	}
 }

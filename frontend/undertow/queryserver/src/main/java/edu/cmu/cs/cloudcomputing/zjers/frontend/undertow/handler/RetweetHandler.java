@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.Deque;
 import java.util.Map;
 
+import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ConnectionPool;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ConnectionPooler;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ServerConfig;
 import io.undertow.server.HttpHandler;
@@ -27,6 +28,7 @@ public class RetweetHandler implements HttpHandler {
     	String userId = queryParams.get("userid").peekFirst();
     	
     	Connection conn = ConnectionPooler.getDS().getConnection();
+//    	Connection conn = ConnectionPool.GetConnection();
     	PreparedStatement ps = conn.prepareStatement(SELECT_SQL);
     	ps.setString(1, userId);
     	ResultSet rs = ps.executeQuery();

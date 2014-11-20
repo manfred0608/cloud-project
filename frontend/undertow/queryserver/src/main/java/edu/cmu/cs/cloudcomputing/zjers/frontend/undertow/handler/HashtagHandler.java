@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.Deque;
 import java.util.Map;
 
+import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ConnectionPool;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ConnectionPooler;
 import edu.cmu.cs.cloudcomputing.zjers.frontend.undertow.ServerConfig;
 import io.undertow.server.HttpHandler;
@@ -15,11 +16,7 @@ import io.undertow.util.Headers;
 public class HashtagHandler implements HttpHandler {
 
 	private static final String SELECT_SQL =
-			"SELECT `hashtag`, `tweet_id` FROM `q4`" +
-			"WHERE `time_place`=?" +
-			"AND `popularity`>=?" +
-			"AND `popularity`<=?" +
-			"ORDER BY `popularity` ASC";
+			"SELECT `data` FROM `q4` WHERE `time_place`=?";
 	
 	@Override
 	public void handleRequest(HttpServerExchange exchange) throws Exception {
@@ -36,13 +33,12 @@ public class HashtagHandler implements HttpHandler {
     	String n = queryParams.get("n").peekFirst();   
     	
     	Connection conn = ConnectionPooler.getDS().getConnection();
+//    	Connection conn = ConnectionPool.GetConnection();
     	
     	PreparedStatement ps = conn.prepareStatement(SELECT_SQL);
 //    	System.out.println(ps.toString());
     	
     	ps.setString(1, timePlace);
-    	ps.setString(2, m);
-    	ps.setString(3, n);
     	
 //    	System.out.println(ps.toString());
     	    	
@@ -54,22 +50,8 @@ public class HashtagHandler implements HttpHandler {
         
         if (rs == null) throw new RuntimeException("RS NULL");
         
-        String lastHashTag = "";
-    	while (rs.next()) {
-    		
-    		if (lastHashTag.isEmpty() || !lastHashTag.equals(rs.getString("hashtag"))) {
-    			if (!lastHashTag.isEmpty()) responseSB.append('\n');
-	    		responseSB
-	    			.append(rs.getString("hashtag")).append(":")
-	    			.append(rs.getString("tweet_id"));
-    		} else {
-    			responseSB
-    				.append(',')
-    				.append(rs.getString("tweet_id"));
-    		}
-    		
-    		lastHashTag = rs.getString("hashtag");
-    	}
+        rs.next();
+        responseSB.append(output(rs.getString("data"), Integer.parseInt(m), Integer.parseInt(n)));
     	
     	responseSB.append('\n');
     	
@@ -80,4 +62,17 @@ public class HashtagHandler implements HttpHandler {
     	exchange.getResponseSender().send(responseSB.toString());
 	}
 
+	private final static String STR_SPLIT = "#";
+
+	public static String output(String input, int m, int n){
+		StringBuilder sb = new StringBuilder();
+
+		String[] splits = input.split(STR_SPLIT);
+
+		for (int i = 2 * m - 1; i <= 2 * n - 1; i += 2){
+			sb.append(splits[i] + "\n");
+		}
+
+		return sb.toString();
+	}
 }

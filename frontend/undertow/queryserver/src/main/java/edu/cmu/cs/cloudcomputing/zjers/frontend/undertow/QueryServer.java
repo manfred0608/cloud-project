@@ -29,6 +29,9 @@ public final class QueryServer {
 	
 	public QueryServer(final String[] args) throws Exception {
 		
+//		ConnectionPool.InitializePooler();
+		ConnectionPooler.getDS();
+		
 		Undertow.builder()
 			.addHttpListener(Integer.parseInt(args[0]), args[1])
 			.setBufferSize(1024 * 16)
