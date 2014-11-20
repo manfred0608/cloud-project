@@ -1,4 +1,4 @@
-package edu.cmu.cs.cloudcomputing.zjers.etl.q4;
+package edu.cmu.cs.cloudcomputing.zjers.etl.q6;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,8 +15,10 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class LoadReducer extends
-		Reducer<Text, Text, Text, NullWritable> {
+public class LoadReducer
+		extends
+		Reducer<Text, Text, NullWritable, Text> {
+	private Text v = new Text();
 	
 	public class Tweet implements Comparable<Tweet>{
 		Long id;
@@ -27,8 +29,14 @@ public class LoadReducer extends
 			this.offset = offset;
 		}
 		
-		public boolean equals(Tweet t2){
-			return t2.id.equals(id);
+		@Override
+		public boolean equals(Object t2){
+			return ((Tweet)t2).id.compareTo(id) == 0;
+		}
+		
+		@Override
+		public int hashCode(){
+			return id.hashCode();
 		}
 
 		@Override
@@ -62,9 +70,9 @@ public class LoadReducer extends
 			if (map.containsKey(sKey)) {
 				Set<Tweet> ls = map.get(sKey);
 				
-				if(!ls.contains(new Tweet(id, offset))){
-					ls.add(new Tweet(id, offset));
-				}
+				Tweet t = new Tweet(id, offset);
+				if(!ls.contains(t))
+					ls.add(t);
 			} else {
 				Set<Tweet> ls = new HashSet<Tweet>();
 				ls.add(new Tweet(id, offset));
@@ -96,30 +104,27 @@ public class LoadReducer extends
 					int diff2 = o1.getValue().get(i).compareTo(o2.getValue().get(i));
 					if(diff2 != 0)
 						return diff2;
+					
 					i++;
 				}
 				return 0;
 			}
 		});
 		
+		
+		String k = "\"" + key.toString() + "\"";
+		
 		for(int i = 0; i < list.size(); i++){
 			Map.Entry<String, List<Tweet>> entry = list.get(i);
-            
-            String dateLocation = key.toString();
-            int rank = i + 1;
-            String hashTag = entry.getKey();
-            
-            for (Tweet t : entry.getValue()) {
-            	long tweetId = t.id;
-            	
-            	String outputLine = "\"" + 
-            			dateLocation + "\",\"" +
-            			rank + "\",\"" +
-            			hashTag + "\",\"" +
-            			tweetId + "\"";
-            	context.write(new Text(outputLine), NullWritable.get());
-            	
-            }
+			String hashtag = "\"" + entry.getKey() + "\"";
+			String rank = "\"" + (i + 1) + "\"";
+			
+			for(int j = 0; j < entry.getValue().size(); j++){
+				String tid = "\"" + entry.getValue().get(j).id + "\"";
+				
+				v.set(k + "," + hashtag + "," + tid + "," + rank);
+				context.write(NullWritable.get(), v);
+			}
 		}
 	}
 }
